@@ -1,5 +1,6 @@
 package org.apache.cordova.videoplayer;
 
+import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
@@ -7,6 +8,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
@@ -21,6 +23,7 @@ import org.apache.cordova.CordovaArgs;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaResourceApi;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, OnPreparedListener, OnErrorListener {
 
@@ -30,6 +33,9 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
 
     private Dialog dialog;
 
+    private VideoView videoView;
+
+    private MediaPlayer player;
     /**
      * Executes the request and returns PluginResult.
      *
@@ -42,6 +48,7 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
         if (action.equals("play")) {
             CordovaResourceApi resourceApi = webView.getResourceApi();
             String target = args.getString(0);
+            final JSONObject options = args.getJSONObject(1);
 
             String fileUriStr;
             try {
@@ -58,7 +65,7 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
             // Create dialog in new thread
             cordova.getActivity().runOnUiThread(new Runnable() {
                 public void run() {
-                    openVideoDialog(path, callbackContext);
+                    openVideoDialog(path, options, callbackContext);
                 }
             });
 
@@ -83,7 +90,8 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
         return uriString;
     }
 
-    protected void openVideoDialog(String path, final CallbackContext callbackContext) {
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    protected void openVideoDialog(String path, JSONObject options, final CallbackContext callbackContext) {
         // Let's create the main dialog
         dialog = new Dialog(cordova.getActivity(), android.R.style.Theme_NoTitleBar);
         dialog.getWindow().getAttributes().windowAnimations = android.R.style.Animation_Dialog;
@@ -97,13 +105,13 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
         main.setHorizontalGravity(Gravity.CENTER_HORIZONTAL);
         main.setVerticalGravity(Gravity.CENTER_VERTICAL);
 
-        final VideoView videoView = new VideoView(cordova.getActivity());
+        videoView = new VideoView(cordova.getActivity());
         videoView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         // videoView.setVideoURI(uri);
         // videoView.setVideoPath(path);
         main.addView(videoView);
 
-        final MediaPlayer player = new MediaPlayer();
+        player = new MediaPlayer();
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
         player.setOnErrorListener(this);
@@ -114,6 +122,28 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
             try {
                 fd = cordova.getActivity().getAssets().openFd(f);
                 player.setDataSource(fd.getFileDescriptor(), fd.getStartOffset(), fd.getLength());
+            } catch (Exception e) {
+                callbackContext.error(e.getLocalizedMessage());
+            }
+        }
+
+        try {
+            float volume = Float.valueOf(options.getString("volume"));
+            player.setVolume(volume, volume);
+        } catch (Exception e) {
+            callbackContext.error(e.getLocalizedMessage());
+        }
+
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            try {
+                int scalingMode = options.getInt("scalingMode");
+                switch (scalingMode) {
+                    case MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING:
+                        player.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+                        break;
+                    default:
+                        player.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+                }
             } catch (Exception e) {
                 callbackContext.error(e.getLocalizedMessage());
             }
@@ -168,5 +198,4 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
         mp.release();
         dialog.dismiss();
     }
-
 }
