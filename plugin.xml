@@ -8,6 +8,8 @@
     <description>Native Video Player Plugin</description>
     <license>MIT</license>
     <keywords>cordova,media,player,video</keywords>
+    <repo>https://github.com/moust/cordova-plugin-videoplayer.git</repo>
+    <issue>https://github.com/moust/cordova-plugin-videoplayer/issues</issue>
 
     <js-module src="www/videoplayer.js" name="VideoPlayer">
         <clobbers target="VideoPlayer" />
