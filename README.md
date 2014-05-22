@@ -1,7 +1,7 @@
 Video Player plugin for Cordova/PhoneGap
 ========================================
 
-A Codova plugin to play video with the native MediaPlayer on Android devices.
+A Codova plugin that simply allows you to immediately play a video in fullscreen mode.
 
 
 # Installation
@@ -18,8 +18,11 @@ cordova plugin add org.apache.cordova.videoplayer
 Just call de `play` method with a video file path as argument.
 
 ```
-VideoPlayer.get(path, [errorCallback]);
+VideoPlayer.get(path, [options], [errorCallback]);
 ```
+
+You can optionally add options parameters like volume and caling mode.
+You can also add an error callback function to handle unexpected playback errors.
 
 ## Example
 
@@ -27,7 +30,18 @@ VideoPlayer.get(path, [errorCallback]);
 VideoPlayer.play("file:///android_asset/www/movie.mp4");
 ```
 
-You can optionally add an error callback function to handle unexpected playback errors.
+```javascript
+VideoPlayer.play(
+    "file:///android_asset/www/movie.mp4",
+    {
+        volume: 0.5,
+        scalingMode: VideoPlayer.SCALING_MODE.SCALE_TO_FIT_WITH_CROPPING
+    },
+    function (err) {
+        console.log(err);
+    }
+);
+```
 
 
 # Licence MIT
