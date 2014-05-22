@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="org.apache.cordova.videoplayer"
+    version="2.0.0">
+
+    <name>Video Player</name>
+    <description>Native Video Player Plugin</description>
+    <license>MIT</license>
+    <keywords>cordova,media,player,video</keywords>
+
+    <js-module src="www/videoplayer.js" name="VideoPlayer">
+        <clobbers target="VideoPlayer" />
+    </js-module>
+
+    <platform name="android">
+
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="VideoPlayer">
+                <param name="android-package" value="org.apache.cordova.videoplayer.VideoPlayer"/>
+            </feature>
+        </config-file>
+
+        <source-file src="src/android/VideoPlayer.java" target-dir="src/org/apache/cordova/videoplayer" />
+
+    </platform>
+
+</plugin>
