@@ -1,4 +1,4 @@
-package org.apache.cordova.videoplayer;
+package com.moust.cordova.videoplayer;
 
 import android.annotation.TargetApi;
 import android.app.Dialog;
@@ -36,6 +36,7 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
     private VideoView videoView;
 
     private MediaPlayer player;
+
     /**
      * Executes the request and returns PluginResult.
      *

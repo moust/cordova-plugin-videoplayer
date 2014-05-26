@@ -9,7 +9,7 @@ A Codova plugin that simply allows you to immediately play a video in fullscreen
 This plugin use the Cordova CLI's plugin command. To install it to your application, simply execute the following (and replace variables).
 
 ```
-cordova plugin add org.apache.cordova.videoplayer
+cordova plugin add com.moust.cordova.videoplayer
 ```
 
 
