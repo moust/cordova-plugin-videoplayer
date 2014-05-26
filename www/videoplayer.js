@@ -12,19 +12,19 @@ module.exports = {
         SCALE_TO_FIT_WITH_CROPPING: 2
     },
 
-    merge: function(obj) {
-        if (false === (obj === Object(obj))) return obj;
-        Array.prototype.slice.call(arguments, 1).forEach(function(source) {
+    play: function (path, options, errorCallback) {
+        options = this.merge(this.DEFAULT_OPTIONS, options);
+        exec(null, errorCallback, "VideoPlayer", "play", [path, options]);
+    },
+
+    merge: function () {
+        var obj = {};
+        Array.prototype.slice.call(arguments).forEach(function(source) {
             for (var prop in source) {
                 obj[prop] = source[prop];
             }
         });
         return obj;
-    },
-
-    play: function(path, options, errorCallback) {
-        options = this.merge(this.DEFAULT_OPTIONS, options);
-        exec(null, errorCallback, "VideoPlayer", "play", [path, options]);
     }
 
 };
