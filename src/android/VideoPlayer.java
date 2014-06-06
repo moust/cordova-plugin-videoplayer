@@ -125,14 +125,25 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
                 player.setDataSource(fd.getFileDescriptor(), fd.getStartOffset(), fd.getLength());
             } catch (Exception e) {
                 callbackContext.error(e.getLocalizedMessage());
+                return;
+            }
+        }
+        else {
+            try {
+                player.setDataSource(path);
+            } catch (Exception e) {
+                callbackContext.error(e.getLocalizedMessage());
+                return;
             }
         }
 
         try {
             float volume = Float.valueOf(options.getString("volume"));
+            Log.d(LOG_TAG, "setVolume: " + volume);
             player.setVolume(volume, volume);
         } catch (Exception e) {
             callbackContext.error(e.getLocalizedMessage());
+            return;
         }
 
         if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
@@ -140,13 +151,16 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
                 int scalingMode = options.getInt("scalingMode");
                 switch (scalingMode) {
                     case MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING:
+                        Log.d(LOG_TAG, "setVideoScalingMode VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING");
                         player.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
                         break;
                     default:
+                        Log.d(LOG_TAG, "setVideoScalingMode VIDEO_SCALING_MODE_SCALE_TO_FIT");
                         player.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
                 }
             } catch (Exception e) {
                 callbackContext.error(e.getLocalizedMessage());
+                return;
             }
         }
 
