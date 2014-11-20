@@ -18,12 +18,13 @@ cordova plugin add com.moust.cordova.videoplayer
 Just call de `play` method with a video file path as argument.
 
 ```
-VideoPlayer.get(path, [options], [errorCallback]);
+VideoPlayer.get(path, [options], [completeCallback], [errorCallback]);
 ```
 
 The plugin is abble to play file-path or http/rtsp URL.
 
 You can optionally add options parameters like volume and caling mode.
+You can also add an success callback function to handle completed playback.
 You can also add an error callback function to handle unexpected playback errors.
 
 ## Example
@@ -39,6 +40,9 @@ VideoPlayer.play(
         volume: 0.5,
         scalingMode: VideoPlayer.SCALING_MODE.SCALE_TO_FIT_WITH_CROPPING
     },
+    function () {
+        console.log("video completed");
+    }
     function (err) {
         console.log(err);
     }

@@ -2,6 +2,9 @@ package com.moust.cordova.videoplayer;
 
 import android.annotation.TargetApi;
 import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -22,14 +25,17 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaArgs;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaResourceApi;
+import org.apache.cordova.PluginResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, OnPreparedListener, OnErrorListener {
+public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, OnPreparedListener, OnErrorListener, OnDismissListener {
 
     protected static final String LOG_TAG = "VideoPlayer";
 
     protected static final String ASSETS = "/android_asset/";
+
+    private CallbackContext callbackContext = null;
 
     private Dialog dialog;
 
@@ -45,8 +51,10 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
      * @param callbackId    The callback id used when calling back into JavaScript.
      * @return              A PluginResult object with a status and message.
      */
-    public boolean execute(String action, CordovaArgs args, final CallbackContext callbackContext) throws JSONException {
+    public boolean execute(String action, CordovaArgs args, CallbackContext callbackContext) throws JSONException {
         if (action.equals("play")) {
+            this.callbackContext = callbackContext;
+
             CordovaResourceApi resourceApi = webView.getResourceApi();
             String target = args.getString(0);
             final JSONObject options = args.getJSONObject(1);
@@ -66,11 +74,15 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
             // Create dialog in new thread
             cordova.getActivity().runOnUiThread(new Runnable() {
                 public void run() {
-                    openVideoDialog(path, options, callbackContext);
+                    openVideoDialog(path, options);
                 }
             });
 
-            callbackContext.success();
+            // Don't return any result now
+            PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
+            pluginResult.setKeepCallback(true);
+            callbackContext.sendPluginResult(pluginResult);
+            callbackContext = null;
 
             return true;
         }
@@ -92,12 +104,13 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    protected void openVideoDialog(String path, JSONObject options, final CallbackContext callbackContext) {
+    protected void openVideoDialog(String path, JSONObject options) {
         // Let's create the main dialog
         dialog = new Dialog(cordova.getActivity(), android.R.style.Theme_NoTitleBar);
         dialog.getWindow().getAttributes().windowAnimations = android.R.style.Animation_Dialog;
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(true);
+        dialog.setOnDismissListener(this);
 
         // Main container layout
         LinearLayout main = new LinearLayout(cordova.getActivity());
@@ -124,7 +137,10 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
                 fd = cordova.getActivity().getAssets().openFd(f);
                 player.setDataSource(fd.getFileDescriptor(), fd.getStartOffset(), fd.getLength());
             } catch (Exception e) {
-                callbackContext.error(e.getLocalizedMessage());
+                PluginResult result = new PluginResult(PluginResult.Status.ERROR, e.getLocalizedMessage());
+                result.setKeepCallback(false); // release status callback in JS side
+                callbackContext.sendPluginResult(result);
+                callbackContext = null;
                 return;
             }
         }
@@ -132,7 +148,10 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
             try {
                 player.setDataSource(path);
             } catch (Exception e) {
-                callbackContext.error(e.getLocalizedMessage());
+                PluginResult result = new PluginResult(PluginResult.Status.ERROR, e.getLocalizedMessage());
+                result.setKeepCallback(false); // release status callback in JS side
+                callbackContext.sendPluginResult(result);
+                callbackContext = null;
                 return;
             }
         }
@@ -142,7 +161,10 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
             Log.d(LOG_TAG, "setVolume: " + volume);
             player.setVolume(volume, volume);
         } catch (Exception e) {
-            callbackContext.error(e.getLocalizedMessage());
+            PluginResult result = new PluginResult(PluginResult.Status.ERROR, e.getLocalizedMessage());
+            result.setKeepCallback(false); // release status callback in JS side
+            callbackContext.sendPluginResult(result);
+            callbackContext = null;
             return;
         }
 
@@ -159,7 +181,10 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
                         player.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
                 }
             } catch (Exception e) {
-                callbackContext.error(e.getLocalizedMessage());
+                PluginResult result = new PluginResult(PluginResult.Status.ERROR, e.getLocalizedMessage());
+                result.setKeepCallback(false); // release status callback in JS side
+                callbackContext.sendPluginResult(result);
+                callbackContext = null;
                 return;
             }
         }
@@ -173,7 +198,10 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
                 try {
                     player.prepare();
                 } catch (Exception e) {
-                    callbackContext.error(e.getLocalizedMessage());
+                    PluginResult result = new PluginResult(PluginResult.Status.ERROR, e.getLocalizedMessage());
+                    result.setKeepCallback(false); // release status callback in JS side
+                    callbackContext.sendPluginResult(result);
+                    callbackContext = null;
                 }
             }
             @Override
@@ -196,8 +224,10 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        Log.e(LOG_TAG, "AudioPlayer.onError(" + what + ", " + extra + ")");
-        mp.stop();
+        Log.e(LOG_TAG, "MediaPlayer.onError(" + what + ", " + extra + ")");
+        if(mp.isPlaying()) {
+            mp.stop();
+        }
         mp.release();
         dialog.dismiss();
         return false;
@@ -210,7 +240,19 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+        Log.d(LOG_TAG, "MediaPlayer completed");
         mp.release();
         dialog.dismiss();
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        Log.d(LOG_TAG, "Dialog dismissed");
+        if (callbackContext != null) {
+            PluginResult result = new PluginResult(PluginResult.Status.OK);
+            result.setKeepCallback(false); // release status callback in JS side
+            callbackContext.sendPluginResult(result);
+            callbackContext = null;
+        }
     }
 }
