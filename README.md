@@ -42,7 +42,7 @@ VideoPlayer.play(
     },
     function () {
         console.log("video completed");
-    }
+    },
     function (err) {
         console.log(err);
     }
