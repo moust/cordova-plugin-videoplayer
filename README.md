@@ -57,8 +57,8 @@ VideoPlayer.play(
 
     The following constants are the only values availables for the `scalingMode` option:
 
-    - `VIDEO_SCALING_MODE_SCALE_TO_FIT` (default)
-    - `VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING`
+    - `SCALE_TO_FIT` (default)
+    - `SCALE_TO_FIT_WITH_CROPPING`
 
     Refer to http://developer.android.com/reference/android/media/MediaPlayer.html#setVideoScalingMode(int) for more details.
 
