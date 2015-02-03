@@ -21,6 +21,11 @@ Just call de `play` method with a video file path as argument.
 VideoPlayer.get(path, [options], [completeCallback], [errorCallback]);
 ```
 
+Stop and close a video currently playing.
+```
+VideoPlayer.close();
+```
+
 The plugin is abble to play file-path or http/rtsp URL.
 
 You can optionally add options parameters like volume and caling mode.

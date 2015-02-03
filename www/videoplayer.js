@@ -17,6 +17,10 @@ module.exports = {
         exec(successCallback, errorCallback, "VideoPlayer", "play", [path, options]);
     },
 
+    close: function (successCallback, errorCallback) {
+        exec(successCallback, errorCallback, "VideoPlayer", "close", []);
+    },
+
     merge: function () {
         var obj = {};
         Array.prototype.slice.call(arguments).forEach(function(source) {
