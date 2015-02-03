@@ -15,13 +15,13 @@ cordova plugin add com.moust.cordova.videoplayer
 
 # Using
 
-Just call de `play` method with a video file path as argument.
+Just call de `play` method with a video file path as argument. The video player will close itself when the video will be completed.
 
 ```
-VideoPlayer.get(path, [options], [completeCallback], [errorCallback]);
+VideoPlayer.play(path, [options], [completeCallback], [errorCallback]);
 ```
 
-Stop and close a video currently playing.
+Stop and close a video currently playing without waiting the end.
 ```
 VideoPlayer.close();
 ```
