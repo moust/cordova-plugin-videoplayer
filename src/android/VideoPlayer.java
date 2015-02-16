@@ -2,6 +2,7 @@ package com.moust.cordova.videoplayer;
 
 import android.annotation.TargetApi;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
@@ -19,6 +20,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.VideoView;
 
 import org.apache.cordova.CallbackContext;
@@ -40,6 +42,8 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
     private Dialog dialog;
 
     private VideoView videoView;
+
+    private MediaController mediaController;
 
     private MediaPlayer player;
 
@@ -142,6 +146,16 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
         // videoView.setVideoURI(uri);
         // videoView.setVideoPath(path);
         main.addView(videoView);
+
+        // if (options.getBool("controls")) {
+            mediaController = new MediaController(cordova.getActivity(), false);
+            mediaController.setAnchorView(videoView);
+            mediaController.setMediaPlayer(videoView);
+            videoView.setMediaController(mediaController);
+            mediaController.setEnabled(true);
+            mediaController.show();
+            videoView.requestFocus();
+        // }
 
         player = new MediaPlayer();
         player.setOnPreparedListener(this);
