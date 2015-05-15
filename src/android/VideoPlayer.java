@@ -1,11 +1,14 @@
 package com.moust.cordova.videoplayer;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.res.AssetFileDescriptor;
+import android.graphics.Point;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
@@ -148,6 +151,16 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
         player.setOnCompletionListener(this);
         player.setOnErrorListener(this);
 
+        MediaPlayer.OnVideoSizeChangedListener mOnVideoSizeChangedListener = new MediaPlayer.OnVideoSizeChangedListener() {
+            @Override
+            public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
+
+                setFitToFillAspectRatio(mp, width, height);
+
+            }
+        };
+        player.setOnVideoSizeChangedListener(mOnVideoSizeChangedListener);
+
         if (path.startsWith(ASSETS)) {
             String f = path.substring(15);
             AssetFileDescriptor fd = null;
@@ -273,4 +286,40 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
             callbackContext = null;
         }
     }
+
+
+
+    public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
+        setFitToFillAspectRatio(mp, width, height);
+
+    }
+
+    private void setFitToFillAspectRatio(MediaPlayer mp, int videoWidth, int videoHeight)
+    {
+        if(mp != null)
+        {
+	        Point size = new Point();
+	        Context context = this.cordova.getActivity();
+	        ((Activity) context).getWindowManager().getDefaultDisplay().getSize(size);
+	        Integer screenWidth = size.x;
+	        Integer screenHeight = size.y;
+
+	        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+	        lp.copyFrom(dialog.getWindow().getAttributes());
+
+            if (videoWidth > videoHeight)
+            {
+                lp.width = screenWidth;
+                lp.height = screenWidth * videoHeight / videoWidth;
+            }
+            else
+            {
+                lp.width = screenHeight * videoWidth / videoHeight;
+                lp.height = screenHeight;
+            }
+	        
+	        dialog.getWindow().setAttributes(lp);
+        }
+    }
+
 }
