@@ -15,7 +15,7 @@ cordova plugin add com.moust.cordova.videoplayer
 
 # Using
 
-Just call de `play` method with a video file path as argument. The video player will close itself when the video will be completed.
+Just call the  `play` method with a video file path as argument. The video player will close itself when the video will be completed.
 
 ```
 VideoPlayer.play(path, [options], [completeCallback], [errorCallback]);
@@ -26,9 +26,9 @@ Stop and close a video currently playing without waiting the end.
 VideoPlayer.close();
 ```
 
-The plugin is abble to play file-path or http/rtsp URL.
+The plugin is able to play file-path or http/rtsp URL.
 
-You can optionally add options parameters like volume and caling mode.
+You can optionally add options parameters like volume and calling mode.
 You can also add an success callback function to handle completed playback.
 You can also add an error callback function to handle unexpected playback errors.
 
@@ -56,7 +56,7 @@ VideoPlayer.play(
 
 ## Options
 
-- `volume`: (Optional) allows you to sets the volume on this player. Note that the passed volume value is raw scalars in range 0.0 to 1.0.
+- `volume`: (Optional) allows you to set the volume on this player. Note that the passed volume value is raw scalars in range 0.0 to 1.0.
 
 - `scalingMode`: (Optional) allows you to sets video scaling mode.
 
