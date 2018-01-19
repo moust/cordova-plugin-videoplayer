@@ -68,6 +68,13 @@ VideoPlayer.play(
     Refer to http://developer.android.com/reference/android/media/MediaPlayer.html#setVideoScalingMode(int) for more details.
 
 
+# Troubleshooting
+
+**When playing a video for the first time, everything works great. when calling .close() function the video closes great. 2nd time around, the .play() is called the same way as the first time. The video plays fine for the second time. Now when trying to close it before the video ends, the app fatally crash.**
+
+When the "completed" event gets fired, make sure you close the video in the "completed" event to clear that instance so that if you have another video they don't both play.
+
+
 # Licence MIT
 
 Copyright 2013 Quentin Aupetit
