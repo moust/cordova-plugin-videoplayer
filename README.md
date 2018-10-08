@@ -1,7 +1,7 @@
 Video Player plugin for Cordova/PhoneGap
 ========================================
 
-A Codova plugin that simply allows you to immediately play a video in fullscreen mode.
+A Cordova plugin that simply allows you to immediately play a video in fullscreen mode.
 
 
 # Installation
