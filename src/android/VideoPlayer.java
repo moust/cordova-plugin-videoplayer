@@ -178,6 +178,18 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
             callbackContext = null;
             return;
         }
+        
+        try {
+            boolean looping = Boolean.parseBoolean(options.getString("looping"));
+            Log.d(LOG_TAG, "setLooping: " + looping);
+            player.setLooping(looping);
+        } catch (Exception e) {
+            PluginResult result = new PluginResult(PluginResult.Status.ERROR, e.getLocalizedMessage());
+            result.setKeepCallback(false); // release status callback in JS side
+            callbackContext.sendPluginResult(result);
+            callbackContext = null;
+            return;
+        }
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
             try {

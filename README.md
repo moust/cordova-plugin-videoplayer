@@ -67,6 +67,7 @@ VideoPlayer.play(
 
     Refer to http://developer.android.com/reference/android/media/MediaPlayer.html#setVideoScalingMode(int) for more details.
 
+- `looping`: (Optional) sets the player to be looping or non-looping. Default: ```false```
 
 # Troubleshooting
 
