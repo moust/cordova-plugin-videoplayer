@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
+import android.content.DialogInterface.OnKeyListener;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -13,6 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.Window;
 import android.view.WindowInsets;
@@ -29,7 +31,7 @@ import org.apache.cordova.PluginResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, OnPreparedListener, OnErrorListener, OnDismissListener {
+public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, OnPreparedListener, OnErrorListener, OnDismissListener, OnKeyListener {
 
     protected static final String LOG_TAG = "VideoPlayer";
 
@@ -95,6 +97,7 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
 
             return true;
         }
+
         return false;
     }
 
@@ -118,8 +121,9 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
         dialog = new Dialog(cordova.getActivity(), android.R.style.Theme_NoTitleBar);
         dialog.getWindow().getAttributes().windowAnimations = android.R.style.Animation_Dialog;
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(true);
+        dialog.setCancelable(false);
         dialog.setOnDismissListener(this);
+        dialog.setOnKeyListener(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             dialog.getWindow().getInsetsController().hide(WindowInsets.Type.statusBars());
         } else {
@@ -278,6 +282,20 @@ public class VideoPlayer extends CordovaPlugin implements OnCompletionListener, 
             callbackContext.sendPluginResult(result);
             callbackContext = null;
         }
+    }
+
+    @Override
+    public final boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Log.d(LOG_TAG, "Back key pressed");
+            PluginResult result = new PluginResult(PluginResult.Status.ERROR, "BACK_KEY");
+            result.setKeepCallback(false); // release status callback in JS side
+            callbackContext.sendPluginResult(result);
+            player.release();
+            dialog.dismiss();
+        }
+
+        return false;
     }
 
 }
